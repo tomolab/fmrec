@@ -1,0 +1,13 @@
+# fmrec-schedule.timer : 毎日 05:00 に予約処理を実行
+[Unit]
+Description=Daily FM recording scheduler
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+# 実行時刻に電源が落ちていた場合、起動後に追いつき実行する
+Persistent=true
+# 複数台運用時などに実行時刻を少し分散(0でも可)
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

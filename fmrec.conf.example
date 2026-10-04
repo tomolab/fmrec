@@ -1,0 +1,196 @@
+# fmrec.conf : FM録音システム共通設定
+# bash からは source、Python からもこのファイルを読み込む。
+# 書式: KEY="value" (シェル互換。行内コメント不可、1行1設定)
+
+# 録音ファイルの保存先
+OUTPUT_DIR="/var/lib/fmrec/recordings"
+
+# --- チューナー構成 ---
+# チューナー種別(空白区切り、tuner番号順)。
+#   airspy = Airspy Mini 等のSDR(sdr_radio.sh + airspy-fmradion で録音。高音質)
+#   shark  = radioSHARK2(RADIO_DEVS / ALSA_DEVS で定義)
+# 既定は「SDR 1台(tuner0)」。radioSHARK2 を足す場合は下の例のように並べる。
+TUNER_TYPES="airspy"
+# 例: Airspy 1台 + radioSHARK2 1台の2チューナー構成(tuner0=SDR, tuner1=shark):
+#TUNER_TYPES="airspy shark"
+# 例: radioSHARK2 だけで運用する場合:
+#TUNER_TYPES="shark"
+
+# radioSHARK2 を使う場合の定義(TUNER_TYPES に shark がある場合のみ必要)。
+# 空白区切りで shark の台数ぶん並べる(1台なら1つ)。
+# ALSA のカード名は arecord -l で確認(2台目は radioSHARK_1 などになる)
+#RADIO_DEVS="/dev/radio0"
+#ALSA_DEVS="hw:CARD=radioSHARK,DEV=0"
+# radioSHARK2 用の録音スクリプト
+#RECORD_SCRIPT="/home/USER/fmrec/shark_radio.sh"
+
+# 指定なし局を自動割当するときに試すチューナーの順序(省略時は番号順)。
+# 例: SDR(tuner0)を優先して使い、埋まっていれば radioSHARK(tuner1):
+#TUNER_PRIORITY="0 1"
+# 設定すると tuner=N(専用)による「他局の除外(温存)」は行わず、指定なし局は
+# この順序で全チューナーを候補にする。ただし専用局(tuner=N)の番組と重なる
+# 時間帯だけは、その専用機を避けて他の候補を先に試す(無駄な衝突を避ける)。
+# 他も埋まっていれば優先度勝負で、keywords.txt の行順(上ほど優先)が決める。
+# 未設定なら従来通り、専用指定されたチューナーは指定なし局から除外(温存)される
+
+# --- SDR録音(Airspy Mini等。TUNER_TYPES に airspy がある場合) ---
+# SDR用録音スクリプト
+SDR_RECORD_SCRIPT="/home/USER/fmrec/sdr_radio.sh"
+# airspy-fmradion のパス(PATH上にあれば省略可)
+SDR_FMRADION="/usr/local/bin/airspy-fmradion"
+# デバイス種別(airspy / rtlsdr / airspyhf)
+SDR_DEVICE_TYPE="airspy"
+# デバイス設定(ゲイン等。airspy-fmradion の -c オプションに追記される)
+# Airspy Mini: lgain/mgain/vgain (0-15程度、環境に合わせて調整)
+# 強い局向けの控えめな値を既定に。局ごとの最適値は ./sdr_gaintest.sh <周波数> で
+# 探し、弱い局は stations.conf の sdr= で個別に上げる
+SDR_DEVICE_CONF="lgain=5,mgain=3,vgain=5"
+# IFサンプルレート(既定3000000。6000000はマルチパスフィルタ併用でCPUが
+# 追いつかずザラザラ雑音になることがある。Airspy R2は10000000)
+SDR_SAMPLE_RATE="3000000"
+# マルチパスフィルタ段数(airspy-fmradion の -E。0で無効。都市部の反射波ひずみ軽減)
+SDR_MULTIPATH="288"
+# 無音・ノイズの切り分け用: yes で airspy-fmradion の警告(ドロップ等)をログに残す
+SDR_VERBOSE="no"
+# 出力コーデック: aac(既定・Podcast互換) / flac(可逆・高音質アーカイブ)
+SDR_AUDIO_CODEC="aac"
+SDR_AAC_BITRATE="256k"
+
+# radikoエリアコード(東京=JP13, 神奈川=JP14, 大阪=JP27 ...)
+# "auto" を指定すると接続元IPからエリアを自動判定します
+AREA="JP13"
+
+# 番組開始の何秒前に録音ジョブを起動するか
+# (shark_radio は起動後 約50秒で録音開始するため 60 を推奨)
+LEAD_SECONDS="60"
+
+# 番組開始の何秒前から録音を始めるか(前番組の混入許容量)
+PRE_ROLL_SECONDS="5"
+
+# 連続番組を1台のチューナーで録るとき(引き継ぎ)の秒数。
+# 前番組は定刻の HANDOFF_LEAD_SECONDS 秒前に録音を終えてデバイスを明け渡し、
+# 次番組は定刻の HANDOFF_START_SECONDS 秒前から録音を始める。
+# 差(既定 5-0=5秒)がデバイス解放と初期化の猶予。
+# mbuffer を入れてあれば START=0(定刻ちょうど)でも頭から録れる。
+# 環境によって頭が欠けるなら START を増やし(その分だけ前番組の音が頭に入る)、
+# LEAD も同じだけ増やして猶予を保つ。
+#HANDOFF_LEAD_SECONDS="5"
+#HANDOFF_START_SECONDS="0"
+# 別局への引き継ぎ(周波数の切り替えが挟まる)用。未設定なら上と同じ値。
+# 切替に時間がかかる環境では大きめに
+#CROSS_HANDOFF_LEAD_SECONDS="12"
+#CROSS_HANDOFF_START_SECONDS="4"
+# SDR(Airspy)は前番組の終了処理に時間がかかるため、別の値にできる
+# (未設定なら上の共通値。終了処理が遅い環境では LEAD を大きくする)
+SDR_HANDOFF_LEAD_SECONDS="5"
+SDR_HANDOFF_START_SECONDS="0"
+# 録音終了時、TERMで終わらない airspy-fmradion を強制終了するまでの猶予(秒)。
+# まれに終了処理がハングするため。正常終了は1〜2秒で完了するので既定3。
+# SDR1台構成では次番組がその分待たされるので、HANDOFF_LEAD より小さくする
+SDR_KILL_GRACE_SECONDS="3"
+# 録音冒頭のフェードイン秒数。airspy-fmradion は起動直後の一瞬、出力が乱れて
+# フルスケールを超え「プチッ」というクリップノイズになることがある。
+# その区間は PRE_ROLL(定刻前)なので、フェードしても実害はない。0 で無効
+SDR_FADEIN_SECONDS="0.3"
+# 録音失敗時に Airspy を USB リセット(抜き差し相当)して自動復旧を試みる。
+# Airspy はまれにハングし「開けるがストリームが来ない」状態になる(実例あり)。
+# sdr_usbreset.py が必要。他の録音が Airspy を使っている間は行わない
+SDR_AUTO_USBRESET="yes"
+
+# 録音が短すぎたら失敗扱いにする閾値(予定時間に対する割合)。正常終了したのに
+# 実測がこの割合未満なら「途中で音声が止まった」とみなし、録音失敗として扱う
+# (Airspyハング時に数分のファイルが「成功」になるのを防ぐ)。短いファイルは
+# 削除せず OUTPUT_DIR/failed/ に退避。手動停止は対象外。FM/SDR共通
+SHORT_FAIL_RATIO="0.5"
+
+# radikoライブ録音の遅延補償(秒)。radikoの配信は実放送より15〜25秒ほど
+# 遅れるため、録音窓をこの秒数だけ後ろへずらして頭の前番組混入を減らし、
+# 番組の尻が録り足しの中に収まるようにする。radikoのみ有効(FMは遅延なし)。
+# 録音した番組の頭の混入が大きい場合は増やし、本編の頭が欠けたら減らす。
+RADIKO_DELAY_SECONDS="20"
+
+# 番組終了後に余分に録る分数
+EXTRA_MINUTES="1"
+
+# キーワードファイルのパス(空ならスクリプトと同じディレクトリの keywords.txt)
+KEYWORD_FILE=""
+
+# 放送中の番組がキーワードにヒットした場合に途中から即時録音するか
+# ("no" にすると次回放送以降の予約のみ行う)
+RECORD_ONAIR="yes"
+
+# 番組表を何日分先まで取得して予約するか(1〜7。radikoは1週間先まで公開)。
+# 深夜番組など数日先の番組も早めに予約される。番組表の変更(特番差し替え等)は
+# 毎日の実行で自動的に同期される(消えた番組は予約取消、新番組は追加)。
+GUIDE_DAYS="7"
+
+# ffmpeg等が /usr/bin 以外にある場合、そのディレクトリを指定
+# (cron/systemd経由の実行では ~/bin などがPATHに含まれないため必須)
+#EXTRA_PATH="/home/USER/bin"
+
+# --- radiko連携(任意。すべて空なら電波録音のみで動作) ---
+#
+# 役割の整理:
+#   radiko_live.sh     : ライブ録音(同梱・外部ツール不要)。
+#                        放送前〜放送中の番組をリアルタイムで録る
+#   radiko_timefree.sh : タイムフリー取得ラッパー(同梱)。
+#                        放送済み番組の取得と、ライブ失敗時の救済用。
+#                        外部ツール rec_radiko_ts と組み合わせて動く
+#   rec_radiko_ts.sh   : タイムフリー取得の本体(外部ツール)
+#                        導入: git clone https://github.com/uru2/rec_radiko_ts
+
+# ①ライブ録音: 同梱の radiko_live.sh のパス
+RADIKO_LIVE_SCRIPT="/home/USER/fmrec/radiko_live.sh"
+
+# ②タイムフリー取得ラッパー: 同梱の radiko_timefree.sh のパス
+RADIKO_TIMEFREE_SCRIPT="/home/USER/fmrec/radiko_timefree.sh"
+
+# ③タイムフリー取得本体: rec_radiko_ts.sh のパス
+#   ②と③の両方が設定されて初めてタイムフリーが有効になります
+RADIKO_TF_SCRIPT=""
+
+# 方式: live = 放送をリアルタイム録音(既定)。放送済み番組の取得と
+#              ライブ不可時のフォールバックにはタイムフリーを使用
+#       timefree = 常に放送終了後にタイムフリーから取得
+RADIKO_METHOD="live"
+
+# ラジコプレミアム(エリアフリー)を使う場合のみ設定
+# (タイムフリー取得で有効。ライブ録音は自エリアのみ)
+#RADIKO_MAIL="foo@example.com"
+#RADIKO_PASSWORD="password"
+# --- Podcast配信(任意。make_podcast.py で使用) ---
+# 配信URLのベース。スマホからアクセスできるアドレスにする。
+# 例: Tailscale経由なら http://<ラズパイのTailscale名>:8080
+#     LAN内なら http://raspberrypi.local:8080
+PODCAST_BASE_URL="http://raspberrypi.local:8080"
+# 配信ポート(podcast_server.py が使用)
+PODCAST_PORT="8080"
+
+# --- インターネット公開時のアクセス制御(Tailscale Funnel 等で外に出す場合) ---
+# Basic認証。ユーザー名を設定すると必須になる(空なら認証なし=tailnet/LAN内運用)。
+# Podcastアプリには https://ユーザー:パスワード@ホスト/... の形で登録する
+#PODCAST_AUTH_USER="radio"
+#PODCAST_AUTH_PASS="長いランダムなパスワード"
+# 秘匿パス。設定すると https://ホスト/<この文字列>/feed.xml 配下だけ応答し、
+# それ以外は404(URL推測への二重の守り)。openssl rand -hex 8 などで生成
+#PODCAST_URL_PREFIX="<openssl rand -hex 8 の出力>"
+# 公開時の PODCAST_BASE_URL は認証と秘匿パスを含めた形にする:
+#PODCAST_BASE_URL="https://radio:パスワード@<マシン名>.<tailnet>.ts.net/<秘匿パス>"
+# フィードのタイトル
+PODCAST_TITLE="わが家のラジオ録音"
+# 局ごとの個別フィードも生成するか(yes/no)
+PODCAST_SPLIT_BY_STATION="yes"
+# 同じ番組をFMとradikoで二重録音(both)している場合、
+# Podcastには1本だけ出す(FM優先、FMが途中切れならradiko)。
+# no にすると両方を別エピソードとして出す。
+PODCAST_DEDUP="yes"
+# 録音完了時にフィードを自動更新するか(no で無効)。
+# systemdタイマーでも定期更新するので、no にしてタイマーだけに
+# 任せることもできる。
+PODCAST_AUTO_FEED="yes"
+# Podcastのカバーアート(アイコン)。
+# 配信フォルダ(OUTPUT_DIR)に podcast.png / podcast_fm.png /
+# podcast_radiko.png を置くと、各フィードのアイコンに使われます。
+# ./make_icons.py "$OUTPUT_DIR" で生成できます。
+# 独自画像を1枚だけ使いたい場合はここにファイル名か絶対URLを指定:
+#PODCAST_IMAGE="my_cover.png"

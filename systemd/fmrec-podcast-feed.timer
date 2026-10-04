@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically regenerate podcast RSS feed
+
+[Timer]
+# 15分ごとにフィードを再生成(新しい録音を反映)
+OnCalendar=*:0/15
+Persistent=true
+
+[Install]
+WantedBy=timers.target

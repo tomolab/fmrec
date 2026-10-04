@@ -1,0 +1,208 @@
+# stations.conf — 受信局の定義
+# 書式: <radiko局ID> <周波数MHz|-> <局名> [モード] [tuner=N|prefer=N] [sdr=...]
+# 局名: 空白を含まないこと(ファイル名・Podcast表示・局別フィード名に使用)
+# tuner=N : この局のFM録音を特定チューナー専用にする(他局はそのチューナーを
+#           使えない=温存。例: Airspy等の高音質SDRを弱い局の専用機に)
+# prefer=N: 優先チューナー。空いていればNを使い、埋まっていれば他の
+#           チューナーへフォールバック(他局の割当は妨げない)
+# sdr=... : SDRで録るときの設定。fmrec.conf の SDR_DEVICE_CONF より優先。
+#           ゲイン(lgain/mgain/vgain)のほか multipath=N(マルチパスフィルタ段数、
+#           0で無効)、mono(モノラル)、filter=narrow(狭帯域)を書ける
+#           例: sdr=lgain=8,mgain=8,vgain=12                        (中程度の局)
+#               sdr=lgain=0,mgain=2,vgain=6                         (強い局)
+#               sdr=lgain=12,mgain=10,vgain=14,multipath=0,mono,filter=narrow (遠距離)
+# モード: fm=電波のみ / radiko=radikoのみ / both=両方(既定)
+#
+# 下は全国の radiko参加FM局・ワイドFM局のカタログ(親局周波数)。
+# 自分のエリアの局の行頭 # を外して使う。中継局を受信する場合は
+# 周波数を実際の値に直すこと。./make_stations.py <エリアID> でも
+# 同等の雛形を自動生成できる(radiko APIの実局リストに基づくため確実)。
+
+# --- 使用例(東京・有効化済み) ---
+FMT       80.0  TOKYO-FM     both
+JOAK-FM   82.5  NHK-FM       both
+TBS       90.5  TBSラジオ    both
+RN1       -     ラジオNIKKEI1 radiko   # 短波局は radiko モード
+
+# --- 全国カタログ ---
+# ◆ 北海道
+#AIR-G         80.4  AIR-G             both   # 手稲山
+#NORTHWAVE     82.5  ノースウェーブ    both   # 手稲山
+#HBC           91.5  HBCラジオ         both   # 手稲山 ワイドFM
+#STV           90.4  STVラジオ         both   # 手稲山 ワイドFM
+
+# ◆ 青森
+#AFB           80.0  エフエム青森      both   # 馬ノ神山 エフエム青森
+#RAB           91.7  RAB青森放送       both   # ワイドFM
+
+# ◆ 岩手
+#FMI           76.1  エフエム岩手      both   # 新山 エフエム岩手
+#IBC           90.6  IBCラジオ         both   # ワイドFM
+
+# ◆ 宮城
+#DATEFM        77.1  エフエム仙台      both   # 大年寺山 Date fm
+#TBC           93.5  TBCラジオ         both   # ワイドFM
+
+# ◆ 秋田
+#AFM           82.8  エフエム秋田      both   # 大森山 エフエム秋田
+#ABS           90.1  ABS秋田放送       both   # ワイドFM
+
+# ◆ 山形
+#RFM           80.4  エフエム山形      both   # 西蔵王 Rhythm Station
+#YBC           92.4  YBC山形放送       both   # ワイドFM
+
+# ◆ 福島
+#FMF           81.8  ふくしまFM        both   # 笹森山 ふくしまFM
+#RFC           90.8  ラジオ福島        both   # ワイドFM ラジオ福島
+
+# ◆ 東京(JP13)
+#FMT           80.0  TOKYO-FM          both   # 東京タワー TOKYO FM
+#FMJ           81.3  J-WAVE            both   # スカイツリー J-WAVE
+#JOAK-FM       82.5  NHK-FM            both   # スカイツリー NHK-FM東京
+#INT           89.7  interfm           both   # スカイツリー interfm
+#BAYFM78       78.0  bayfm78           both   # 船橋三山
+#NACK5         79.5  NACK5             both   # 飯盛峠
+#YFM           84.7  FMヨコハマ        both   # 大山 FMヨコハマ
+#TBS           90.5  TBSラジオ         both   # スカイツリー ワイドFM
+#QRR           91.6  文化放送          both   # スカイツリー ワイドFM 文化放送
+#JORF          92.4  ラジオ日本        both   # みなとみらい ワイドFM ラジオ日本
+#LFR           93.0  ニッポン放送      both   # スカイツリー ワイドFM ニッポン放送
+
+# ◆ 茨城
+#IBS           94.6  LuckyFM茨城放送   both   # LuckyFM茨城 ワイドFM
+
+# ◆ 栃木
+#CRT           94.1  栃木放送          both   # 栃木放送 ワイドFM
+#RADIOBERRY    76.4  レディオベリー    both   # 宇都宮 RADIO BERRY
+
+# ◆ 群馬
+#FMGUNMA       86.3  FMぐんま          both   # 赤城山 FM GUNMA
+
+# ◆ 新潟
+#FMNIIGATA     77.5  FM新潟            both   # 弥彦山 FM NIIGATA
+#BSN           92.7  BSNラジオ         both   # ワイドFM
+
+# ◆ 山梨
+#FM-FUJI       83.0  FM-FUJI           both   # 坊ヶ峯 FM FUJI
+#YBS           90.9  YBSラジオ         both   # ワイドFM 山梨放送
+
+# ◆ 長野
+#FMN           79.7  FM長野            both   # 美ヶ原 FM長野
+#SBC           92.2  SBCラジオ         both   # ワイドFM 信越放送
+
+# ◆ 富山
+#FMTOYAMA      82.7  FMとやま          both   # 呉羽山 FMとやま
+#KNB           90.2  KNBラジオ         both   # ワイドFM 北日本放送
+
+# ◆ 石川
+#HELLOFIVE     80.5  エフエム石川      both   # 観音堂 エフエム石川
+#MRO           94.0  MROラジオ         both   # ワイドFM 北陸放送
+
+# ◆ 福井
+#FMFUKUI       76.1  FM福井            both   # 足羽山 FM福井
+#FBC           94.6  FBCラジオ         both   # ワイドFM 福井放送
+
+# ◆ 静岡
+#K-MIX         79.2  K-MIX             both   # 日本平 K-MIX静岡
+#SBS           93.9  SBSラジオ         both   # ワイドFM 静岡放送
+
+# ◆ 愛知
+#ZIP-FM        77.8  ZIP-FM            both   # 東山タワー
+#FMAICHI       80.7  FM愛知            both   # 東山タワー FM AICHI
+#CBC           93.7  CBCラジオ         both   # 東山タワー ワイドFM
+#TOKAIRADIO    92.9  東海ラジオ        both   # 東山タワー ワイドFM 東海ラジオ
+
+# ◆ 岐阜
+#FMGIFU        80.0  FM岐阜            both   # 金華山 FM GIFU
+#GBS           90.4  ぎふチャン        both   # ワイドFM ぎふチャン
+
+# ◆ 三重
+#FMMIE         78.9  FM三重            both   # 青山高原 レディオキューブFM三重
+
+# ◆ 滋賀
+#E-RADIO       77.0  FM滋賀            both   # 宇佐山 e-radio FM滋賀
+
+# ◆ 京都
+#ALPHA-STATION 89.4  FM京都            both   # 比叡山 α-STATION FM京都
+#KBS           94.9  KBS京都           both   # ワイドFM KBS京都
+
+# ◆ 大阪
+#802           80.2  FM802             both   # 飯盛山 FM802
+#FMO           85.1  FM大阪            both   # 飯盛山 FM大阪
+#CCL           76.5  FM-COCOLO         both   # 飯盛山 FM COCOLO
+#ABC           93.3  ABCラジオ         both   # 生駒山 ワイドFM
+#MBS           90.6  MBSラジオ         both   # 生駒山 ワイドFM
+#OBC           91.9  ラジオ大阪        both   # 生駒山 ワイドFM ラジオ大阪
+
+# ◆ 兵庫
+#KISSFMKOBE    89.9  KissFMKOBE        both   # 摩耶山 Kiss FM KOBE
+#CRK           91.1  ラジオ関西        both   # ワイドFM ラジオ関西
+
+# ◆ 和歌山
+#WBS           94.2  和歌山放送        both   # ワイドFM 和歌山放送
+
+# ◆ 鳥取・島根
+#FM-SANIN      77.4  エフエム山陰      both   # 毛無山 V-air エフエム山陰
+#BSS           92.2  BSSラジオ         both   # ワイドFM 山陰放送
+
+# ◆ 岡山
+#FM-OKAYAMA    76.8  FM岡山            both   # 金甲山 FM岡山
+#RSK           91.4  RSKラジオ         both   # ワイドFM RSK山陽放送
+
+# ◆ 広島
+#HFM           78.2  広島FM            both   # 黄金山 広島FM
+#RCC           94.6  RCCラジオ         both   # ワイドFM 中国放送
+
+# ◆ 山口
+#FMY           79.2  FM山口            both   # 大平山 FM山口
+#KRY           92.3  KRYラジオ         both   # ワイドFM 山口放送
+
+# ◆ 徳島
+#JRT           93.0  四国放送          both   # ワイドFM 四国放送
+
+# ◆ 香川
+#FMKAGAWA      78.6  FM香川            both   # 前田山 FM香川
+#RNC           90.3  西日本放送        both   # ワイドFM 西日本放送
+
+# ◆ 愛媛
+#JOEU-FM       79.7  FM愛媛            both   # 行道山 FM愛媛
+#RNB           91.7  南海放送          both   # ワイドFM 南海放送
+
+# ◆ 高知
+#HI-SIX        81.6  エフエム高知      both   # 五台山 エフエム高知
+#RKC           90.1  高知放送          both   # ワイドFM 高知放送
+
+# ◆ 福岡
+#FMFUKUOKA     80.7  FM福岡            both   # 福岡タワー FM FUKUOKA
+#CROSSFM       78.7  CROSS-FM          both   # 皿倉山
+#LOVEFM        76.1  LOVE-FM           both   # 福岡タワー
+#RKB           91.0  RKBラジオ         both   # 福岡タワー ワイドFM
+#KBC           90.2  KBCラジオ         both   # 福岡タワー ワイドFM 九州朝日放送
+
+# ◆ 佐賀
+#FMS           77.9  エフエム佐賀      both   # 九千部山 エフエム佐賀
+
+# ◆ 長崎
+#NBC           92.6  NBCラジオ         both   # ワイドFM 長崎放送
+#FMNAGASAKI    79.5  FM長崎            both   # 稲佐山 FM長崎
+
+# ◆ 熊本
+#FMK           77.4  FM熊本            both   # 金峰山 FM熊本
+#RKK           91.4  RKKラジオ         both   # ワイドFM 熊本放送
+
+# ◆ 大分
+#FM_OITA       88.0  FM大分            both   # 十文字原 FM大分
+#OBS           93.3  OBSラジオ         both   # ワイドFM 大分放送
+
+# ◆ 宮崎
+#JOYFM         83.2  FM宮崎            both   # 鰐塚山 FM宮崎 JOY FM
+#MRT           90.4  MRTラジオ         both   # ワイドFM 宮崎放送
+
+# ◆ 鹿児島
+#MYUFM         79.8  ミューFM          both   # 紫尾山 μFM 鹿児島
+#MBC           92.8  MBCラジオ         both   # ワイドFM 南日本放送
+
+# ◆ 沖縄
+#FM_OKINAWA    87.3  FM沖縄            both   # 豊見城高安 FM沖縄
+#RBC           92.1  RBCiラジオ        both   # ワイドFM 琉球放送
+#ROK           93.1  ラジオ沖縄        both   # ワイドFM ラジオ沖縄

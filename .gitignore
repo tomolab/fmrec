@@ -1,0 +1,24 @@
+# 環境依存の設定(exampleをコピーして各自作成)
+fmrec.conf
+stations.conf
+keywords.txt
+
+# 実行時に生成されるファイル
+registered.log
+*.wav
+*.m4a
+*.mp3
+
+# radikoから取得した局ロゴ(放送局の著作物のためリポジトリに含めない。
+# 各自 fetch_logos.py を実行して取得する)
+logo_*.png
+
+# 生成されるフィード
+feed*.xml
+
+# ログ・一時ファイル
+*.log
+*.tmp.*
+
+# 開発メモ(実機環境の詳細を含むため公開しない)
+HANDOFF.md

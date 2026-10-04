@@ -1,0 +1,16 @@
+# fmrec-podcast.service : 録音ファイルとRSSフィードを配信するHTTPサーバー
+# Range対応・マルチスレッドの podcast_server.py を使う。
+# 外部公開せず、Tailscale等のVPN経由での利用を強く推奨。
+[Unit]
+Description=FM recording podcast HTTP server (Range-capable)
+After=network.target
+
+[Service]
+Type=simple
+User=USER
+# ▼ パスを自分の環境に合わせる ▼
+ExecStart=/home/USER/fmrec/podcast_server.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

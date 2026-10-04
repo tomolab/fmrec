@@ -1,0 +1,15 @@
+# fmrec-schedule.service : 番組表検索・録音予約(1回実行型)
+# 実際の定期起動は fmrec-schedule.timer が行う
+[Unit]
+Description=FM recording scheduler (radiko program guide search)
+Wants=network-online.target
+After=network-online.target atd.service
+
+[Service]
+Type=oneshot
+# ▼ 環境に合わせて変更 ▼
+User=USER
+ExecStart=/home/USER/fmrec/schedule_programs.py
+# 設定ファイルを別の場所に置く場合はコメントを外す
+#Environment=FMREC_CONF=/home/USER/fmrec/fmrec.conf
+#Environment=FMREC_STATIONS=/home/USER/fmrec/stations.conf
